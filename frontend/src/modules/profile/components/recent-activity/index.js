@@ -1,39 +1,15 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Divider, Message } from "semantic-ui-react";
+import { Divider, Icon, Message } from "semantic-ui-react";
 import Cover from "../../../app/components/cover";
 import { loadActivity } from "../../actions";
+import ActivityIcons from "./ActivityIcons";
 import "./styles.css";
 
 class RecentActivity extends React.Component {
   componentDidMount() {
     this.props.loadActivity(this.props.username);
   }
-
-  stringifyStars = value => {
-    let stars = "★".repeat(value);
-    if (value % 1) {
-      stars += "½";
-    }
-    return stars;
-  };
-
-  getEntryType = type => {
-    switch (type) {
-      case "F":
-        return "check circle";
-      case "P":
-        return "play circle";
-      case "R":
-        return "redo";
-      case "S":
-        return "plus";
-      case "A":
-        return "times circle";
-      default:
-        return null;
-    }
-  };
 
   render() {
     const { activity } = this.props;
@@ -43,7 +19,14 @@ class RecentActivity extends React.Component {
         {activity.length > 0 ? (
           <div className="recent-wrapper">
             {activity.map((g, i) => {
-              return <Cover key={i} imageId={g.game.cover_id} size="small" />;
+              return (
+                <Cover
+                  key={i}
+                  imageId={g.game.cover_id}
+                  size="small"
+                  activity={<ActivityIcons game={g} />}
+                />
+              );
             })}
             {[...Array(5 - activity.length)].map((_, i) => (
               <div key={i} className="placeholder" />
