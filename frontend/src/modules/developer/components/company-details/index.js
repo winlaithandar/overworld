@@ -10,7 +10,7 @@ const CompanyDetails = React.memo(({company}) => {
     const span = document.querySelector("#desctest");
 
     if (e.nativeEvent.offsetY > span.offsetHeight) {
-      descToggle == "more" ? setDescToggle("less") : setDescToggle("more");
+      descToggle === "more" ? setDescToggle("less") : setDescToggle("more");
     }
   };
 

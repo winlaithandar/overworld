@@ -9,7 +9,7 @@ export default function BackdropFrom({ backdrop, position = false }) {
       {Object.keys(backdrop).length > 0 && (
         <section
           className="backdrop-name"
-          style={position == "isLeft" ? { marginRight: "18%" } : {}}
+          style={position === "isLeft" ? { marginRight: "18%" } : {}}
         >
           Backdrop from{" "}
           <Link

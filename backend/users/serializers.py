@@ -10,7 +10,7 @@ from .models import CustomUser
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'email', 'gravatar')
+        fields = ('id', 'username', 'email', 'profile') #'gravatar',)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -32,7 +32,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             'username',
             'email',
             'bio',
-            'gravatar',
+            #'gravatar',
+            'profile',
             'location',
             'twitter',
             'played',
@@ -59,17 +60,18 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'email', 'password')   
+        fields = ('id', 'username', 'profile', 'email', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        g = Gravatar(validated_data['email'])
-        gravatar = g.get_image(size=120, default='retro', use_ssl=True)
+        #g = Gravatar(validated_data['email'])
+        #gravatar = g.get_image(size=120, default='retro', use_ssl=True)
         user = CustomUser.objects.create_user(
             validated_data['username'],
             validated_data['email'],
             validated_data['password'],
-            gravatar=gravatar
+            validated_data['profile'],
+            #gravatar=gravatar
         )
         return user
 
@@ -83,3 +85,5 @@ class LoginSerializer(serializers.Serializer):
         if user and user.is_active:
             return user
         raise serializers.ValidationError('Incorrect username/password.')
+
+

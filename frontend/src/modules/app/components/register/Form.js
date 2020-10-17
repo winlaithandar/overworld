@@ -9,6 +9,7 @@ export const RegistrationForm = (props) => {
   const defaultState = {
     email: "",
     username: "",
+    profile:null
     password: "",
     password2: ""
   };
@@ -38,6 +39,12 @@ export const RegistrationForm = (props) => {
     };
 
     register(newUser)(dispatch);
+  };
+
+  const handleImageChange = (e) => {
+    this.setState({
+      profile: e.target.files[0]
+    })
   };
 
   const validateForm = () => {
@@ -86,6 +93,11 @@ export const RegistrationForm = (props) => {
             value={password2}
             onChange={handleChange}
           />
+        </Form.Field>
+        <Form.Field>
+            <input type="file"
+                   id="profile"
+                   accept="image/png, image/jpeg"  onChange={this.handleImageChange} required/>
         </Form.Field>
         <Button
           floated="right"

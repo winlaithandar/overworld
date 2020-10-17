@@ -71,6 +71,18 @@ _popular_fields = [
     'popularity',
     'slug',
 ]
+_most_liked_fields = [
+    'cover.image_id',
+    'name',
+    'popularity',
+    'slug',
+]
+_most_played_fields = [
+    'cover.image_id',
+    'name',
+    'popularity',
+    'slug',
+]
 
 _backdrop_fields = [
     'name',

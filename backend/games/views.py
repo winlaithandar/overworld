@@ -8,7 +8,8 @@ from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from actions.models import Ratings
 from actions.serializers import RatingSerializer
-from .fields import game_fields, search_fields, company_fields, company_logo_fields, company_game_fields, popular_fields, backdrop_fields, genre_fields, recents_fields, upcoming_fields
+from .fields import game_fields, search_fields, company_fields, company_logo_fields, company_game_fields, \
+    popular_fields, backdrop_fields, genre_fields, recents_fields, upcoming_fields, _most_liked_fields, _most_played_fields
 from .models import Game
 
 
@@ -247,5 +248,112 @@ def get_game_ratings(request, slug):
         return Response(serializer)
     except:
         raise NotFound(detail='Game does not have rating.')
-   
+
+
+@api_view(['GET'])
+def get_most_like_games(request):
+    """Gets popular or trending games.
+
+    Calls the `games` endpoint, sorting the results by popularity (desc).
+    This endpoint is called in Overworld's landing page. An example of this
+    is documented on IGDB https://api-docs.igdb.com/?javascript#examples-12.
+
+    Takes limit parameter with max of 50, min 1 and default of 6 if not passed
+    Returns:
+        games: games sorted by popularity.
+    """
+
+    # get parameters with defaults and check bounds
+    limit = int(request.GET.get("limit", 6))
+    limit = limit if limit < 50 and limit > 0 else 6
+
+    offset = int(request.GET.get("offset", 0))
+    offset = offset if offset >= 0 and offset < 150 else 0
+
+    filters = request.GET.get("filters", '{}')
+    filters = json.loads(filters)
+
+    adultContent = request.GET.get("adultContent", False)
+
+    conditions = ""
+
+    if 'genre' in filters and len(filters['genre']):
+        ids = tuple([x['id'] for x in filters['genre']]) if len(filters['genre']) > 1 else filters['genre'][0][
+            'id']  # create list of id's in format required by IGDB api
+        conditions += f"where genres={ids};"
+
+    if 'date' in filters and len(filters['date']):
+        if filters['date'][0]:
+            conditions += f"where release_date.date <= {filters['date'][0]['utc']};"
+        if filters['date'][1]:
+            conditions += f"where release_date.date >= {filters['date'][1]['utc']};"
+
+    if 'developer' in filters and len(filters['developer']):
+        pass
+
+    if not adultContent:
+        data = f'fields {popular_fields}; sort popularity desc; limit {limit}; offset {offset}; where themes != (42);' + conditions
+    if adultContent:
+        data = f'fields {popular_fields}; sort popularity desc; limit {limit}; offset {offset};' + conditions
+
+    headers = {'user-key': settings.IGDB_KEY}
+    url = settings.IGDB_URL.format(endpoint='games')
+    r = requests.post(url=url, data=data, headers=headers)
+
+    return Response(r.json())
+
+
+@api_view(['GET'])
+def get_most_play_games(request):
+    """Gets popular or trending games.
+
+    Calls the `games` endpoint, sorting the results by popularity (desc).
+    This endpoint is called in Overworld's landing page. An example of this
+    is documented on IGDB https://api-docs.igdb.com/?javascript#examples-12.
+
+    Takes limit parameter with max of 50, min 1 and default of 6 if not passed
+    Returns:
+        games: games sorted by popularity.
+    """
+
+    # get parameters with defaults and check bounds
+    limit = int(request.GET.get("limit", 6))
+    limit = limit if limit < 50 and limit > 0 else 6
+
+    offset = int(request.GET.get("offset", 0))
+    offset = offset if offset >= 0 and offset < 150 else 0
+
+    filters = request.GET.get("filters", '{}')
+    filters = json.loads(filters)
+
+    adultContent = request.GET.get("adultContent", False)
+
+    conditions = ""
+
+    if 'genre' in filters and len(filters['genre']):
+        ids = tuple([x['id'] for x in filters['genre']]) if len(filters['genre']) > 1 else filters['genre'][0][
+            'id']  # create list of id's in format required by IGDB api
+        conditions += f"where genres={ids};"
+
+    if 'date' in filters and len(filters['date']):
+        if filters['date'][0]:
+            conditions += f"where release_date.date <= {filters['date'][0]['utc']};"
+        if filters['date'][1]:
+            conditions += f"where release_date.date >= {filters['date'][1]['utc']};"
+
+    if 'developer' in filters and len(filters['developer']):
+        pass
+
+    if not adultContent:
+        data = f'fields {popular_fields}; sort popularity desc; limit {limit}; offset {offset}; where themes != (42);' + conditions
+    if adultContent:
+        data = f'fields {popular_fields}; sort popularity desc; limit {limit}; offset {offset};' + conditions
+
+    headers = {'user-key': settings.IGDB_KEY}
+    url = settings.IGDB_URL.format(endpoint='games')
+    r = requests.post(url=url, data=data, headers=headers)
+
+    return Response(r.json())
+
+
         

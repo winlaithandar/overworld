@@ -8,7 +8,7 @@ from actions.serializers import RatingSerializer
 from actions.models import Ratings, Journal
 from .models import CustomUser
 from .serializers import UserSerializer, ProfileSerializer, RegisterSerializer, LoginSerializer, RecentActivitySerializer
-
+from rest_framework.parsers import MultiPartParser
 
 class RatingsView(generics.GenericAPIView):
     """Endpoint for getting ratings by user for all games.
@@ -101,10 +101,12 @@ class ProfileView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         """Method for updating your profile."""
         me = get_object_or_404(CustomUser, id=request.user.id)
+        parser_classes = (MultiPartParser,)
 
-        if 'refreshAvatar' in request.data:
-            g = Gravatar(me.email)
-            me.gravatar = g.get_image(size=120, default='retro', use_ssl=True)
+
+        #if 'refreshAvatar' in request.data:
+         #   g = Gravatar(me.email)
+          #  me.gravatar = g.get_image(size=120, default='retro', use_ssl=True)
 
         for key in request.data:
           setattr(me, key, request.data[key])

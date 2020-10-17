@@ -35,10 +35,11 @@ if HEROKU:
 else:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-    'https://overworld.netlify.com',
-)
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000'
+    #'https://overworld.netlify.com',
+]
 
 # Application definition
 
@@ -129,6 +130,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
+SITE_ID = 1
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -149,11 +152,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 # IGDB
 
 IGDB_KEY = os.getenv('IGDB_KEY')
-IGDB_URL = 'https://api-v3.igdb.com/{endpoint}/'
+IGDB_URL = 'https://api.igdb.com/v4/{endpoint}/'
 
 
 # Django Heroku

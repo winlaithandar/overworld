@@ -3,7 +3,7 @@ import { GET_POPULAR, GET_BACKDROP } from "./actionTypes";
 
 export const getPopular = (limit = 6, offset = 0, filters = {}) => dispatch => {
   axios
-    .get("/api/games/popular/", {
+  .get("/api/games/popular/", {
       params: { limit: limit, offset: offset, filters: filters }
     })
     .then(res => {
@@ -16,7 +16,8 @@ export const getPopular = (limit = 6, offset = 0, filters = {}) => dispatch => {
 };
 
 export const getBackdrop = gameId => dispatch => {
-  axios.get(`/api/games/backdrop/${gameId}/`).then(res => {
+  axios
+  .get('/api/games/backdrop/${gameId}/').then(res => {
     const data = res.data[0];
     const backdrop = {
       name: data.name,
