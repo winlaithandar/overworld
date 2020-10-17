@@ -10,6 +10,8 @@ from users.models import CustomUser
 from .serializers import RatingSerializer, ActionSerializer, JournalSerializer
 from .models import Ratings, Journal
 from .utils import AllowAnyGet
+from django.db.models import Count, Sum, Value
+from django.db.models.functions import Coalesce
 
 class Actions(generics.GenericAPIView):
     """Endpoint for obtaining a user's relationship with a game.
@@ -118,6 +120,22 @@ class Like(generics.GenericAPIView):
         boolean value of the action.
     """    
     permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            igdb = request.GET['igdb']
+            game = Game.objects.get(igdb=igdb)
+            user = CustomUser.objects.get(id=request.user.id)
+            lk = Game.objects.get(game=game, user=user).annotate(
+                liked=Coalesce(Sum('liked__isLiked'), Value(0)),
+            )
+
+        except ObjectDoesNotExist:
+            return Response({})
+
+        serializer = ActionSerializer(lk)
+
+        return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
         game, _ = Game.objects.get_or_create(**request.data)
@@ -253,7 +271,10 @@ class Rate(generics.GenericAPIView):
             igdb = request.GET['igdb']
             game = Game.objects.get(igdb=igdb)
             user = CustomUser.objects.get(id=request.user.id)
-            r = Ratings.objects.get(game=game, user=user)
+            r = Ratings.objects.get(game=game, user=user).annotate(
+                rating=Coalesce(Sum('rating__isRate'), Value(0)),
+            )
+
         except ObjectDoesNotExist:
             return Response({})
 
