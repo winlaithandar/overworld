@@ -11,7 +11,8 @@ from actions.serializers import RatingSerializer
 from .fields import game_fields, search_fields, company_fields, company_logo_fields, company_game_fields, \
     popular_fields, backdrop_fields, genre_fields, recents_fields, upcoming_fields, _most_liked_fields, _most_played_fields
 from .models import Game
-
+from django.db.models import Count, Sum, Value
+from django.db.models.functions import Coalesce
 
 @api_view(['GET'])
 def get_genres(request):
@@ -252,16 +253,6 @@ def get_game_ratings(request, slug):
 
 @api_view(['GET'])
 def get_most_like_games(request):
-    """Gets popular or trending games.
-
-    Calls the `games` endpoint, sorting the results by popularity (desc).
-    This endpoint is called in Overworld's landing page. An example of this
-    is documented on IGDB https://api-docs.igdb.com/?javascript#examples-12.
-
-    Takes limit parameter with max of 50, min 1 and default of 6 if not passed
-    Returns:
-        games: games sorted by popularity.
-    """
 
     # get parameters with defaults and check bounds
     limit = int(request.GET.get("limit", 6))
@@ -292,9 +283,10 @@ def get_most_like_games(request):
         pass
 
     if not adultContent:
-        data = f'fields {popular_fields}; sort popularity desc; limit {limit}; offset {offset}; where themes != (42);' + conditions
+        liked = Coalesce(Sum('liked__isLike'), Value(0))
+        data = f'fields {_most_liked_fields}; limit {limit}; offset {offset}; where themes != (42);' + conditions
     if adultContent:
-        data = f'fields {popular_fields}; sort popularity desc; limit {limit}; offset {offset};' + conditions
+        data = f'fields {_most_liked_fields};  limit {limit}; offset {offset};' + conditions
 
     headers = {'user-key': settings.IGDB_KEY}
     url = settings.IGDB_URL.format(endpoint='games')
@@ -305,16 +297,6 @@ def get_most_like_games(request):
 
 @api_view(['GET'])
 def get_most_play_games(request):
-    """Gets popular or trending games.
-
-    Calls the `games` endpoint, sorting the results by popularity (desc).
-    This endpoint is called in Overworld's landing page. An example of this
-    is documented on IGDB https://api-docs.igdb.com/?javascript#examples-12.
-
-    Takes limit parameter with max of 50, min 1 and default of 6 if not passed
-    Returns:
-        games: games sorted by popularity.
-    """
 
     # get parameters with defaults and check bounds
     limit = int(request.GET.get("limit", 6))
@@ -345,9 +327,10 @@ def get_most_play_games(request):
         pass
 
     if not adultContent:
-        data = f'fields {popular_fields}; sort popularity desc; limit {limit}; offset {offset}; where themes != (42);' + conditions
+        played = Coalesce(Sum('played__isPlay'), Value(0))
+        data = f'fields {_most_played_fields}; limit {limit}; offset {offset}; where themes != (42);' + conditions
     if adultContent:
-        data = f'fields {popular_fields}; sort popularity desc; limit {limit}; offset {offset};' + conditions
+        data = f'fields {_most_played_fields};  limit {limit}; offset {offset};' + conditions
 
     headers = {'user-key': settings.IGDB_KEY}
     url = settings.IGDB_URL.format(endpoint='games')

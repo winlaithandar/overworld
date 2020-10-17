@@ -15,6 +15,34 @@ export const getPopular = (limit = 6, offset = 0, filters = {}) => dispatch => {
     .catch(err => console.log(err));
 };
 
+export const getMostLiked = (limit = 6, offset = 0, filters = {}) => dispatch => {
+  axios
+  .get("/api/games/mostliked/", {
+      params: { limit: limit, offset: offset, filters: filters }
+    })
+    .then(res => {
+      dispatch({
+        type: GET_MOST_LIKED,
+        payload: res.data
+      });
+    })
+    .catch(err => console.log(err));
+};
+
+export const getMostPlayed = (limit = 6, offset = 0, filters = {}) => dispatch => {
+  axios
+  .get("/api/games/mostplayed/", {
+      params: { limit: limit, offset: offset, filters: filters }
+    })
+    .then(res => {
+      dispatch({
+        type: GET_MOST_PLAYED,
+        payload: res.data
+      });
+    })
+    .catch(err => console.log(err));
+};
+
 export const getBackdrop = gameId => dispatch => {
   axios
   .get('/api/games/backdrop/${gameId}/').then(res => {
